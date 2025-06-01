@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>로그인 페이지</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #ffffff;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+      position: relative;
+    }
+
+   
+    .image-fall-container {
+      position: relative;
+      width: 700px;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #ffffff;
+    }
+
+    .falling-image {
+      position: absolute;
+      height: 50vh;
+      width: auto;
+      max-width: 95%;
+      left: 30px;
+      animation: fallDown 6s linear infinite;
+      opacity: 0;
+    }
+
+    .falling-image:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .falling-image:nth-child(2) {
+      animation-delay: 2s;
+    }
+
+    .falling-image:nth-child(3) {
+      animation-delay: 4s;
+    }
+
+    @keyframes fallDown {
+      0% {
+        top: -60vh;
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      80% {
+        opacity: 1;
+      }
+      100% {
+        top: 100vh;
+        opacity: 0;
+      }
+    }
+
+   
+    .login-box {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-content {
+      background-color: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 320px;
+      text-align: center;
+    }
+
+    .logo-image {
+      display: block;
+      margin: 0 auto 20px auto;
+      max-width: 180px;
+      height: auto;
+    }
+
+    .login-content h2 {
+      margin-bottom: 24px;
+      color: #333;
+    }
+
+    .login-content input[type="text"],
+    .login-content input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .login-content input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .login-content input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+
+    .login-links {
+      margin-top: 16px;
+    }
+
+    .login-links a {
+      margin: 0 8px;
+      text-decoration: none;
+      color: #4CAF50;
+      font-size: 14px;
+    }
+
+    .login-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="image-fall-container">
+      <img src="image1.jpg" alt="image1" class="falling-image">
+      <img src="image2.jpg" alt="image2" class="falling-image">
+      <img src="image3.jpg" alt="image3" class="falling-image">
+    </div>
+
+ 
+    <div class="login-box">
+      <div class="login-content">
+        <img src="logo.jpg" alt="DesEDU 로고" class="logo-image">
+        <h2>로그인</h2>
+        <form action="login.html" method="get">
+          <input type="text" placeholder="아이디" required>
+          <input type="password" placeholder="비밀번호" required>
+          <input type="submit" value="로그인">
+        </form>
+        <div class="login-links">
+          <a href="signup.html">회원가입</a>
+          <a href="findId.html">ID 찾기</a>
+          <a href="findPW.html">비밀번호 찾기</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+
+
+
+
