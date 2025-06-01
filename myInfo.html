@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>비밀번호 확인</title>
+  <style>
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      background-color: #fff;
+      padding: 10px 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 100;
+    }
+
+    .logo {
+      margin-right: 20px;
+    }
+
+    .logo img {
+      height: 50px;
+      cursor: pointer;
+    }
+
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-btn {
+      background-color: #333;
+      color: #fff;
+      padding: 10px 16px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      z-index: 1;
+      min-width: 180px;
+    }
+
+    .dropdown-content a {
+      padding: 10px;
+      display: block;
+      text-decoration: none;
+      color: #000;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #eee;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+   
+    .container {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+      background-color: #f9f9f9;
+    }
+
+    .password-box {
+      background-color: #fff;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 350px;
+      text-align: center;
+    }
+
+    .password-box h2 {
+      margin-bottom: 25px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin-bottom: 8px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      box-sizing: border-box;
+      margin-bottom: 20px;
+    }
+
+    button {
+      width: 100%;
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 12px 0;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .error-message {
+      color: red;
+      margin-bottom: 15px;
+      display: none;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="header">
+    <div class="logo">
+      <a href="login.html"><img src="logo.jpg" alt="DesEDU 로고" /></a>
+    </div>
+    <div class="dropdown">
+      <button class="dropdown-btn">메뉴</button>
+      <div class="dropdown-content">
+        <a href="syllabus.html">강의계획서 조회</a>
+        <a href="courseRegistration.html">수강 신청</a>
+        <a href="grade.html">성적 조회</a>
+        <a href="gradeInput.html">성적 입력</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="password-box">
+      <h2>비밀번호 확인</h2>
+      <form id="passwordCheckForm" onsubmit="return validatePassword(event)">
+        <label for="password">비밀번호 입력</label>
+        <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required />
+        <div class="error-message" id="errorMessage">비밀번호가 일치하지 않습니다.</div>
+        <button type="submit">확인</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // 임시 더미 비밀번호 
+    const correctPassword = "1234";
+
+    function validatePassword(event) {
+      event.preventDefault();
+      const inputPw = document.getElementById('password').value;
+      const errorMsg = document.getElementById('errorMessage');
+
+      if (inputPw === correctPassword) {
+        errorMsg.style.display = 'none';
+        window.location.href = 'myInfo_edit.html';
+        return true;
+      } else {
+        errorMsg.style.display = 'block';
+        return false;
+      }
+    }
+  </script>
+</body>
+</html>
+
