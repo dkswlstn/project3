@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>비밀번호 찾기</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 40px 0;
+    }
+
+    .logo {
+      margin-bottom: 20px;
+    }
+
+    .logo img {
+      height: 80px;
+      cursor: pointer;
+    }
+
+    .container {
+      background-color: #eaeaea;
+      padding: 40px 50px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0069d9;
+    }
+  </style>
+  <script>
+    function handlePasswordFind() {
+      alert('입력한 정보를 기반으로 valuePW 출력');
+      window.location.href = 'basic.html';
+    }
+  </script>
+</head>
+<body>
+
+  <div class="logo">
+    <a href="basic.html">
+      <img src="/images/logo.jpg" alt="DesEDU 로고" />
+    </a>
+  </div>
+
+  <div class="container">
+    <h1>비밀번호 찾기</h1>
+    <form onsubmit="handlePasswordFind(); return false;">
+      <label for="studentid">학번</label>
+      <input type="text" id="studentid" name="studentid" placeholder="학번 입력" required />
+      
+      <label for="username">아이디</label>
+      <input type="text" id="username" name="username" placeholder="아이디 입력" required />
+
+      <button type="submit">비밀번호 찾기</button>
+    </form>
+  </div>
+</body>
+<script>
+  function handlePasswordFind() {
+    const studentId = document.getElementById("studentid").value;
+    const username = document.getElementById("username").value;
+
+    fetch("/api/auth/find-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ student_id: studentId, username })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("서버 응답 실패");
+      return res.json();
+    })
+    .then(data => {
+      if (data.success) {
+        alert("비밀번호: " + data.password);
+        window.location.href = "basic.html";
+      } else {
+        alert("❌ " + data.message);
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert("서버 오류가 발생했습니다.");
+    });
+
+    return false; // ✅ 폼 submit 막기
+  }
+</script>
+</html>

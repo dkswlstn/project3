@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>시간표 페이지</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
+
+    .header {
+      background-color: #ffffff;
+      padding: 15px 30px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+    }
+
+    .logo {
+      margin-right: 30px;
+    }
+
+    .logo img {
+      height: 50px;
+      cursor: pointer;
+    }
+
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-btn {
+      background-color: #333;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 180px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
+
+    .dropdown-content a {
+      display: block;
+      padding: 10px;
+      color: black;
+      text-decoration: none;
+      border-bottom: 1px solid #eee;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #f0f0f0;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .main {
+      display: flex;
+      padding: 30px;
+      gap: 40px;
+    }
+
+    .subject-box {
+      flex: 1;
+      min-height: 500px;
+      background-color: #ffffff;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .subject-rect {
+      width: 320px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+      background-color: #fafafa;
+      border: 2px solid #666;
+      border-radius: 8px;
+      box-shadow: inset 0 0 5px #ddd;
+    }
+
+    .subject-name {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    .separator {
+      width: 100%;
+      height: 1px;
+      background-color: #ccc;
+    }
+
+    .subject-btn-container {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .subject-btn {
+      flex: 1;
+      padding: 12px 0;
+      font-size: 13px;
+      border: 1px solid #000;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-notice {
+      background-color: #007bff;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .btn-homework {
+      background-color: #28a745;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .btn-resource {
+      background-color: #ffc107;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .subject-btn:hover {
+      opacity: 0.9;
+    }
+
+    .timetable {
+      flex: 1;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    td {
+      height: 60px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo">
+      <a href="login.html">
+        <img src="/images/logo.jpg" alt="DesEDU 로고" />
+      </a>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropdown-btn">메뉴</button>
+      <div class="dropdown-content">
+        <a href="syllabus.html">강의계획서 조회</a>
+        <a href="courseRegistration.html">수강 신청</a>
+        <a href="grade.html">성적 조회</a>
+        <a href="gradeInput.html">성적 입력</a>
+        <a href="myInfo.html">내 정보 수정</a>
+        <a href="board.html">자유 게시판</a>
+        <a href="futurePlan.html">진로 설계</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="subject-box">
+      <div class="subject-rect">
+        <p class="subject-name">과목명</p>
+        <div class="separator"></div>
+        <div class="subject-btn-container">
+          <button class="subject-btn btn-notice" onclick="location.href='notice.html'">강의 공지사항</button>
+          <button class="subject-btn btn-homework" onclick="location.href='homework.html'">과제</button>
+          <button class="subject-btn btn-resource" onclick="location.href='info.html'">자료실</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="timetable">
+      <table>
+        <thead>
+          <tr>
+            <th>교시</th>
+            <th>월</th>
+            <th>화</th>
+            <th>수</th>
+            <th>목</th>
+            <th>금</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>2</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>3</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>4</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>5</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>6</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>7</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>8</td><td></td><td></td><td></td><td></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</body>
+</html>
+
+
+
