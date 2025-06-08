@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>공지사항 보기</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f9f9f9;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      background-color: #fff;
+      padding: 10px 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+      margin-right: 20px;
+    }
+
+    .logo img {
+      height: 50px;
+      cursor: pointer;
+    }
+
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-btn {
+      background-color: #333;
+      color: #fff;
+      padding: 10px 16px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      z-index: 1;
+      min-width: 180px;
+    }
+
+    .dropdown-content a {
+      padding: 10px;
+      display: block;
+      text-decoration: none;
+      color: #000;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #eee;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .meta span {
+      margin-right: 10px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #ccc;
+      margin: 20px 0;
+    }
+
+    .content {
+      white-space: pre-line;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .btn-row a {
+      padding: 10px 18px;
+      background-color: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      margin-left: 10px;
+    }
+
+    .action-btn {
+      padding: 6px 10px;
+      background-color: #007bff;
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.85em;
+    }
+
+    .action-btn.delete {
+      background-color: #dc3545;
+    }
+
+    .action-btn:hover {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="header">
+    <div class="logo">
+      <a href="login.html"><img src="/images/logo.jpg" alt="DesEDU 로고" /></a>
+    </div>
+    <div class="dropdown">
+      <button class="dropdown-btn">메뉴</button>
+      <div class="dropdown-content">
+        <a href="syllabus.html">강의계획서 조회</a>
+        <a href="courseRegistration.html">수강 신청</a>
+        <a href="grade.html">성적 조회</a>
+        <a href="gradeInput.html">성적 입력</a>
+        <a href="myInfo.html">내 정보 수정</a>
+        <a href="board.html">자유 게시판</a>
+        <a href="futurePlan.html">진로 설계</a>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="container">
+    <div class="title">공지</div>
+
+    <div class="meta">
+      <div><span></span> | <span></span></div>
+      <div>
+        <a href="#" class="action-btn edit">수정</a>
+        <a href="#" onclick="confirmDelete()" class="action-btn delete">삭제</a>
+      </div>
+    </div>
+
+    <hr />
+
+    <div class="content">
+    </div>
+
+    <hr />
+
+    <div class="btn-row">
+      <a href="notice.html">목록</a>
+    </div>
+  </div>
+  <script>
+    const id = new URLSearchParams(window.location.search).get('id');
+
+    if (!id) {
+      alert("잘못된 접근입니다.");
+      location.href = "notice.html";
+    }
+
+    fetch(`/api/notices/${id}`)
+      .then(res => {
+        if (!res.ok) throw new Error(`응답 오류: ${res.status}`);
+        return res.json();
+      })
+      .then(notice => {
+        if (!notice || !notice.title) throw new Error("공지 없음");
+
+        document.querySelector('.title').textContent = notice.title;
+        document.querySelector('.meta span:first-child').textContent = notice.author;
+        document.querySelector('.meta span:last-child').textContent = new Date(notice.created_at).toLocaleDateString();
+        document.querySelector('.content').textContent = notice.content;
+        document.querySelector('.edit').href = `notice_edit.html?id=${id}`;
+      })
+      .catch(err => {
+        console.error("에러 발생:", err);
+
+        // 🧹 DOM 초기화
+        document.querySelector('.title').textContent = '';
+        document.querySelector('.meta span:first-child').textContent = '';
+        document.querySelector('.meta span:last-child').textContent = '';
+        document.querySelector('.content').textContent = '';
+
+        alert("공지사항을 불러오지 못했습니다.");
+        location.href = "notice.html";
+      });
+
+    function confirmDelete() {
+      if (confirm("정말 삭제하시겠습니까?")) {
+        fetch(`/api/notices/${id}`, {
+          method: 'DELETE'
+        })
+        .then(res => res.json())
+        .then(() => {
+          alert("삭제되었습니다.");
+          window.location.href = "notice.html";
+        })
+        .catch(() => alert("삭제 실패"));
+      }
+    }
+  </script>
+
+
+
+</body>
+</html>
+
+
+

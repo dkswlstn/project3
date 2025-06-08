@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>ID 찾기</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 40px 0;
+    }
+
+    .logo {
+      margin-bottom: 20px;
+    }
+
+    .logo img {
+      height: 80px;
+      cursor: pointer;
+    }
+
+    .container {
+      background-color: #eaeaea;
+      padding: 40px 50px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">
+    <a href="basic.html">
+      <img src="/images/logo.jpg" alt="DesEDU 로고" />
+    </a>
+  </div>
+
+  <div class="container">
+    <h1>ID 찾기</h1>
+    <form onsubmit="handleSubmit(); return false;">
+      <label for="studentid">학번</label>
+      <input type="text" id="studentid" name="student_id" placeholder="학번 입력" required />
+      <button type="submit">ID 찾기</button>
+    </form>
+  </div>
+</body>
+<script>
+  async function handleSubmit() {
+    const studentIdInput = document.getElementById('studentid');
+    if (!studentIdInput) {
+      alert('입력 요소를 찾을 수 없습니다.');
+      return;
+    }
+
+    const student_id = studentIdInput.value;
+
+    try {
+      const res = await fetch('/api/auth/find-id', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ student_id })  // 👈 이 키가 중요!
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        alert(`당신의 아이디는: ${data.username}`);
+        setTimeout(() => {
+          window.location.href = 'basic.html';
+        }, 2000);
+      } else {
+        alert('해당 학번에 대한 아이디가 없습니다.');
+      }
+    } catch (err) {
+      alert('서버 오류가 발생했습니다.');
+    }
+  }
+</script>
+</html>
+
