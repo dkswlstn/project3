@@ -92,16 +92,15 @@
       margin-right: 10px;
     }
 
-    hr {
-      border: none;
-      border-top: 1px solid #ccc;
-      margin: 20px 0;
-    }
-
     .content {
       white-space: pre-line;
       line-height: 1.6;
       margin-bottom: 30px;
+    }
+
+    .attachment {
+      margin: 10px 0 30px 0;
+      font-size: 14px;
     }
 
     .btn-row {
@@ -126,6 +125,8 @@
       border-radius: 4px;
       text-decoration: none;
       font-size: 0.85em;
+      border: none;
+      cursor: pointer;
     }
 
     .action-btn.delete {
@@ -138,7 +139,7 @@
   </style>
 </head>
 <body>
-  
+
   <div class="header">
     <div class="logo">
       <a href="login.html"><img src="/images/logo.jpg" alt="DesEDU 로고" /></a>
@@ -157,32 +158,29 @@
     </div>
   </div>
 
-
   <div class="container">
-    <div class="title">공지</div>
+    <div class="title" id="title">공지</div>
 
     <div class="meta">
-      <div><span></span> | <span></span></div>
+      <div><span id="author"></span> | <span id="created_at"></span></div>
       <div>
-        <a href="#" class="action-btn edit">수정</a>
-        <a href="#" onclick="confirmDelete()" class="action-btn delete">삭제</a>
+        <button id="editBtn" class="action-btn">수정</button>
+        <button onclick="confirmDelete()" class="action-btn delete">삭제</button>
       </div>
     </div>
 
     <hr />
-
-    <div class="content">
-    </div>
-
+    <div class="content" id="content">내용</div>
+    <div class="attachment" id="attachment"></div>
     <hr />
 
     <div class="btn-row">
       <a href="notice.html">목록</a>
     </div>
   </div>
-  <script>
-    const id = new URLSearchParams(window.location.search).get('id');
 
+  <script>
+    const id = new URLSearchParams(location.search).get('id');
     if (!id) {
       alert("잘못된 접근입니다.");
       location.href = "notice.html";
@@ -196,44 +194,40 @@
       .then(notice => {
         if (!notice || !notice.title) throw new Error("공지 없음");
 
-        document.querySelector('.title').textContent = notice.title;
-        document.querySelector('.meta span:first-child').textContent = notice.author;
-        document.querySelector('.meta span:last-child').textContent = new Date(notice.created_at).toLocaleDateString();
-        document.querySelector('.content').textContent = notice.content;
-        document.querySelector('.edit').href = `notice_edit.html?id=${id}`;
+        document.getElementById('title').textContent = notice.title;
+        document.getElementById('author').textContent = notice.author;
+        document.getElementById('created_at').textContent = new Date(notice.created_at).toLocaleDateString();
+        document.getElementById('content').textContent = notice.content;
+        document.getElementById('editBtn').addEventListener('click', () => {
+          location.href = `notice_edit.html?id=${id}`;
+        });
+
+        // 첨부파일 링크 추가
+        if (notice.file_path) {
+          const link = document.createElement('a');
+          link.href = `/uploads/${notice.file_path}`;
+          link.textContent = `📎 첨부파일 다운로드 (${notice.file_path})`;
+          link.download = '';
+          link.style.display = 'block';
+          document.getElementById('attachment').appendChild(link);
+        }
       })
       .catch(err => {
         console.error("에러 발생:", err);
-
-        // 🧹 DOM 초기화
-        document.querySelector('.title').textContent = '';
-        document.querySelector('.meta span:first-child').textContent = '';
-        document.querySelector('.meta span:last-child').textContent = '';
-        document.querySelector('.content').textContent = '';
-
         alert("공지사항을 불러오지 못했습니다.");
         location.href = "notice.html";
       });
 
     function confirmDelete() {
       if (confirm("정말 삭제하시겠습니까?")) {
-        fetch(`/api/notices/${id}`, {
-          method: 'DELETE'
-        })
-        .then(res => res.json())
-        .then(() => {
-          alert("삭제되었습니다.");
-          window.location.href = "notice.html";
-        })
-        .catch(() => alert("삭제 실패"));
+        fetch(`/api/notices/${id}`, { method: 'DELETE' })
+          .then(() => {
+            alert("삭제되었습니다.");
+            window.location.href = "notice.html";
+          })
+          .catch(() => alert("삭제 실패"));
       }
     }
   </script>
-
-
-
 </body>
 </html>
-
-
-

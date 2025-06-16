@@ -11,6 +11,18 @@ const storage = multer.diskStorage({
 });
 const upload = multer({storage});
 
+// 과목 목록 조회 (중복 제거 + null 제외)
+router.get('/subjects', (req, res) => {
+  db.query('SELECT DISTINCT name FROM course', (err, results) => {
+    if (err) {
+      console.error('과목 목록 조회 오류:', err);
+      return res.status(500).send('서버 오류');
+    }
+    const subjects = results.map(r => r.name);
+    res.json(subjects);
+  });
+});
+
 //공지사항 전체 조회
 router.get('/notices', (req, res) => {
   db.query('SELECT * FROM notice ORDER BY created_at DESC', (err, results) => {
@@ -24,21 +36,22 @@ router.get('/notices', (req, res) => {
 
 //공지사항 등록
 router.post('/notices', upload.single('file'), (req, res) => {
-  const { title, content, author } = req.body;
+  const { title, content, author, subject } = req.body;
+  const course_id = req.body.course_id; // ✅ 명확히 꺼내기
   const file_path = req.file ? req.file.filename : null;
 
-  if (!title || !content || !author) {
-    return res.status(400).json({ error: '필수 항목 누락' });
-  }
+  const sql = `
+    INSERT INTO notice (title, content, author, course_id, file_path, created_at)
+    VALUES (?, ?, ?, ?, ?, NOW())
+  `;
 
-  db.query(
-    `INSERT INTO notice (title, content, author, file_path) VALUES (?, ?, ?, ?)`,
-    [title, content, author, file_path],
-    (err) => {
-      if (err) return res.status(500).send(err);
-      res.json({ success: true });
+  db.query(sql, [title, content, author, course_id, file_path], (err) => {
+    if (err) {
+      console.error('❌ 공지사항 등록 실패:', err);
+      return res.status(500).send('등록 실패');
     }
-  );
+    res.status(201).send('공지사항 등록 완료');
+  });
 });
 
 //공지사항 단일 조회

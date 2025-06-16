@@ -133,12 +133,18 @@
 
   <div class="container">
     <h2>자료 수정</h2>
-    <form action="info.html" method="POST" enctype="multipart/form-data">
+    <form id="editForm" enctype="multipart/form-data">
+      <label for="subject">과목명</label>
+      <input type="text" id="subject" name="subject" required />
+
+      <label for="author">교수명</label>
+      <input type="text" id="author" name="author" required />
+
       <label for="title">제목</label>
-      <input type="text" id="title" name="title" value="기존 제목" required />
+      <input type="text" id="title" name="title" required />
 
       <label for="content">내용</label>
-      <textarea id="content" name="content" rows="10" required>기존 공지 내용</textarea>
+      <textarea id="content" name="content" rows="10" required></textarea>
 
       <label for="file">첨부파일</label>
       <input type="file" id="file" name="file" />
@@ -147,6 +153,36 @@
         <button type="submit">수정 완료</button>
       </div>
     </form>
+    <script>
+  const id = new URLSearchParams(location.search).get('id');
+
+  fetch(`/api/infos/${id}`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('title').value = data.title;
+      document.getElementById('content').value = data.content;
+      document.getElementById('author').value = data.author;
+      document.getElementById('subject').value = data.subject;
+    });
+
+  document.getElementById('editForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    const res = await fetch(`/api/infos/${id}`, {
+      method: 'PUT',
+      body: formData
+    });
+
+    if (res.ok) {
+      alert('수정 완료');
+      window.location.href = `info_view.html?id=${id}`;
+    } else {
+      alert('수정 실패');
+    }
+  });
+</script>
+
   </div>
 </body>
 </html>

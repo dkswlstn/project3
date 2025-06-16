@@ -171,33 +171,33 @@
 
   <script>
     async function validatePassword(event) {
-    event.preventDefault();
+      event.preventDefault();
 
-    const password = document.getElementById('password').value;
-    const errorMsg = document.getElementById('errorMessage');
-    const id = localStorage.getItem('username');
+      const password = document.getElementById('password').value;
+      const errorMsg = document.getElementById('errorMessage');
+      const id = localStorage.getItem('username');
 
-    if (!id) {
-      alert('로그인 정보가 없습니다. 다시 로그인 해주세요.');
-      window.location.href = 'login.html';
-      return;
+      if (!id) {
+        alert('로그인 정보가 없습니다. 다시 로그인 해주세요.');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const res = await fetch('/api/myinfo/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: id, password })
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        errorMsg.style.display = 'none';
+        window.location.href = 'myInfo_edit.html';
+      } else {
+        errorMsg.style.display = 'block';
+      }
     }
-
-    const res = await fetch('/api/myinfo/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
-
-    const result = await res.json();
-
-    if (result.success) {
-      errorMsg.style.display = 'none';
-      window.location.href = 'myInfo_edit.html';
-    } else {
-      errorMsg.style.display = 'block';
-    }
-  }
   </script>
 </body>
 </html>

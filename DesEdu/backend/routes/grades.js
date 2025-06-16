@@ -2,30 +2,54 @@ const express = require('express');
 const router = express.Router();
 const conn = require('../db');
 
-// 전체 성적 조회 (관리자용 또는 디버깅용)
-router.get('/grades', (req, res) => {
-  conn.query(`SELECT * FROM grades`, (err, results) => {
-    if (err) return res.status(500).send('DB 오류');
+// 성적 전체 조회
+router.get('/', (req, res) => {
+  const sql = `
+    SELECT 
+      year, 
+      semester, 
+      subject_name, 
+      IFNULL(professor_name, '미지정') AS professor_name,
+      grade
+    FROM grades
+    ORDER BY id DESC
+  `;
+  conn.query(sql, (err, results) => {
+    if (err) {
+      console.error('성적 조회 오류:', err);
+      return res.status(500).json({ success: false, message: '성적 조회 실패' });
+    }
     res.json(results);
   });
 });
 
+// 성적 입력
 router.post('/', (req, res) => {
   const {
-    student_id, student_name, subject_name,
-    year, semester, grade, professor_name
+    student_id,
+    student_name,
+    subject_name,
+    year,
+    semester,
+    grade,
+    professor_name
   } = req.body;
 
   const sql = `
-    INSERT INTO grades (student_id, student_name, subject_name, year, semester, grade, professor_name)
+    INSERT INTO grades 
+    (student_id, student_name, subject_name, year, semester, grade, professor_name)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
-  conn.query(sql, [student_id, student_name, subject_name, year, semester, grade, professor_name], (err) => {
+
+  conn.query(sql, [
+    student_id, student_name, subject_name,
+    year, semester, grade, professor_name || null
+  ], (err, result) => {
     if (err) {
-      console.error(err); // ✅ 콘솔 로그로 에러 확인
-      return res.status(500).send('DB 저장 실패');
+      console.error('성적 입력 오류:', err);
+      return res.status(500).json({ success: false, message: '성적 입력 실패' });
     }
-    res.send('성적 저장 완료');
+    res.json({ success: true, message: '성적 입력 완료' });
   });
 });
 

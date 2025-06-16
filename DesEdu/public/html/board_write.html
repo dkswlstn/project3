@@ -115,7 +115,7 @@
 <body>
   <div class="header">
     <div class="logo">
-      <a href="login.html"><img src="logo.jpg" alt="DesEDU 로고" /></a>
+      <a href="login.html"><img src="/images/logo.jpg" alt="DesEDU 로고" /></a>
     </div>
     <div class="dropdown">
       <button class="dropdown-btn">메뉴</button>
@@ -133,7 +133,7 @@
 
   <div class="container">
     <h2>게시글 작성</h2>
-    <form action="board.html" method="POST" enctype="multipart/form-data">
+    <form id = "writeForm" action="board.html" method="POST" enctype="multipart/form-data">
       <label for="title">제목</label>
       <input type="text" id="title" name="title" required />
 
@@ -147,6 +147,20 @@
         <button type="submit">작성 완료</button>
       </div>
     </form>
+    <script>
+      document.getElementById('writeForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch('/api/board/write', {
+          method: 'POST',
+          body: formData
+        }).then(res => {
+          if (res.redirected) {
+          window.location.href = res.url;
+        }
+      });
+    });
+    </script>
   </div>
 </body>
 </html>

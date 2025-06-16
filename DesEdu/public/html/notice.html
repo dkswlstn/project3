@@ -154,35 +154,38 @@
           <th>작성일</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td><a href="notice_view.html" class="title-link">공지</a></td>
-          <td>강성무 교수</td>
-          <td>2025-05-29</td>
-        </tr>
-        <!-- 추가 게시글 행들 -->
+      <tbody id="noticeList">
+        <!--JS에서 렌더링-->
       </tbody>
     </table>
   </div>
-</body>
-<script>
-fetch('/api/notices')
-  .then(res => res.json())
-  .then(data => {
-    const tbody = document.querySelector('tbody');
-    tbody.innerHTML = '';
 
-    data.forEach(notice => {
-      tbody.innerHTML += `
-        <tr>
-          <td><a href="notice_view.html?id=${notice.id}" class="title-link">${notice.title}</a></td>
-          <td>${notice.author}</td>
-          <td>${new Date(notice.created_at).toLocaleDateString()}</td>
-        </tr>
-      `;
-    });
-  });
-</script>
+  <script>
+    const userId = localStorage.getItem('user_id');
+    if (!userId) {
+      alert('로그인이 필요합니다.');
+      location.href = 'login.html';
+    }
+
+    // 공지사항 전체 가져오기
+    fetch('/api/notices')
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.getElementById('noticeList');
+        if (data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:gray;">공지사항이 없습니다.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = data.map(n => `
+          <tr>
+            <td><a href="notice_view.html?id=${n.id}" class="title-link">${n.title}</a></td>
+            <td>${n.author}</td>
+            <td>${new Date(n.created_at).toLocaleDateString()}</td>
+          </tr>
+        `).join('');
+      });
+  </script>
+</body>
 </html>
 
 

@@ -149,21 +149,21 @@
 
   <div class="container">
     <h2>내 정보 수정</h2>
-    <form action="login.html" method="post">
+    <form id="updateForm">
       <label for="id">ID</label>
-      <input type="text" id="id" name="id" value="desedu2025" readonly />
+      <input type="text" id="id" name="id" readonly />
 
       <label for="studentId">학번</label>
-      <input type="text" id="studentId" name="studentId" value="20250001" readonly />
+      <input type="text" id="studentId" name="studentId" readonly />
 
       <label for="name">이름</label>
-      <input type="text" id="name" name="name" value="홍길동" readonly />
+      <input type="text" id="name" name="name" readonly />
 
       <label for="email">이메일</label>
-      <input type="email" id="email" name="email" value="hong@univ.ac.kr" />
+      <input type="email" id="email" name="email" />
 
       <label for="phone">전화번호</label>
-      <input type="text" id="phone" name="phone" value="010-1234-5678" />
+      <input type="text" id="phone" name="phone" />
 
       <label for="password">비밀번호 변경</label>
       <input type="password" id="password" name="password" placeholder="새 비밀번호 입력" />
@@ -177,10 +177,40 @@
 </body>
 
 <script>
-  document.querySelector('form').addEventListener('submit', async function (e) {
+  window.addEventListener('DOMContentLoaded', async () => {
+      const user = JSON.parse(localStorage.getItem('user'));
+      const username = user?.username;
+      
+      if (!username) {
+        alert('로그인 정보가 없습니다.');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/myinfo/${username}`);
+        const data = await res.json();
+
+        if (data.success) {
+          const user = data.user;
+          document.getElementById('id').value = user.id;
+          document.getElementById('name').value = user.name;
+          document.getElementById('studentId').value = user.student_id;
+          document.getElementById('email').value = user.email;
+          document.getElementById('phone').value = user.phone;
+        } else {
+          alert('사용자 정보를 불러오지 못했습니다.');
+        }
+      } catch (err) {
+        console.error('에러:', err);
+        alert('서버 통신 오류');
+      }
+    });
+
+  document.getElementById('updateForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    const id = document.getElementById('username').value;
+    const username = localStorage.getItem('username');
     const email = document.getElementById('email').value;
     const phone = document.getElementById('phone').value;
     const password = document.getElementById('password').value;
@@ -188,22 +218,20 @@
     try {
       const res = await fetch('/api/myinfo/update', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ id, email, phone, password })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, phone, password })
       });
 
-      const data = await res.json();
-      if (data.success) {
-        alert('정보가 수정되었습니다.');
-        window.location.href = 'login.html'; // 또는 메인 페이지
+      const result = await res.json();
+      if (result.success) {
+        alert('정보가 성공적으로 수정되었습니다.');
+        window.location.href = 'login.html';
       } else {
-        alert('수정 실패: ' + data.message);
+        alert('수정 실패: ' + result.message);
       }
     } catch (err) {
-      console.error('Error:', err);
-      alert('서버 오류가 발생했습니다.');
+      alert('서버 통신 오류');
+      console.error(err);
     }
   });
 </script>

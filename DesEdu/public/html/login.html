@@ -70,19 +70,21 @@
       display: flex;
       padding: 30px;
       gap: 40px;
+      align-items: flex-start;
     }
 
     .subject-box {
       flex: 1;
-      min-height: 500px;
+      max-height: 700px;
+      overflow-y: auto;         /* ✅ 스크롤 가능하게 */
+      display: flex;
+      flex-direction: column;   /* ✅ 세로 정렬로 변경 */
+      gap: 20px;                /* ✅ 박스 사이 간격 */
       background-color: #ffffff;
       padding: 20px;
       border: 1px solid #ccc;
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
     }
 
     .subject-rect {
@@ -198,6 +200,8 @@
         <a href="myInfo.html">내 정보 수정</a>
         <a href="board.html">자유 게시판</a>
         <a href="futurePlan.html">진로 설계</a>
+        <li><hr></li> <!-- 구분선 -->
+        <li><a href="/api/auth/logout">로그아웃</a></li>
       </div>
     </div>
   </div>
@@ -240,7 +244,93 @@
       </table>
     </div>
   </div>
+  <script>
+    const dayMap = { '월': 1, '화': 2, '수': 3, '목': 4, '금': 5 };
 
+    function parseTimeSlot(timeStr) {
+      const slots = timeStr.split(',').map(s => s.trim());
+      const result = [];
+
+      slots.forEach(slot => {
+        const [day, periodStr] = slot.split(' ');
+        const col = dayMap[day];
+
+        if (!col || !periodStr) return;
+
+        if (periodStr.includes('~')) {
+          const [start, end] = periodStr.split('~').map(Number);
+          for (let row = start; row <= end; row++) {
+            result.push({ col, row });
+          }
+        } else {
+          result.push({ col, row: Number(periodStr) });
+        }
+      });
+      return result;
+    }
+
+    function getColorForSubject(subject) {
+      // 과목 이름 기준 해시로 색상 고정
+      const hash = [...subject].reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+      const hue = hash % 360;
+      return `hsl(${hue}, 60%, 85%)`; // 연한 파스텔 계열
+    }
+
+    function fillTimetable(courses) {
+      courses.forEach(course => {
+        const positions = parseTimeSlot(course.time);
+        const bgColor = getColorForSubject(course.subject);
+        const printed = new Set(); // 각 요일별 첫 셀만 과목명 표시
+
+        positions.forEach(({ col, row }) => {
+          const cell = document.querySelector(`.timetable tbody tr:nth-child(${row}) td:nth-child(${col + 1})`);
+          if (cell) {
+            cell.style.backgroundColor = bgColor;
+            const dayKey = `col${col}`; // 요일 기준 키
+            if (!printed.has(dayKey)) {
+              cell.textContent = course.subject;
+              cell.style.fontWeight = 'bold';
+              printed.add(dayKey);
+            }
+          }
+        });
+      });
+    }
+
+    function createSubjectBox(subjectName, professor) {
+      const container = document.querySelector('.subject-box');
+      const rect = document.createElement('div');
+      rect.className = 'subject-rect';
+      rect.innerHTML = `
+       <p class="subject-name">${subjectName} - ${professor} 교수</p>
+        <div class="separator"></div>
+        <div class="subject-btn-container">
+          <button class="subject-btn btn-notice" onclick="goToPage('${subjectName.replace(/'/g, "\\'")}', 'notice')">강의 공지사항</button>
+          <button class="subject-btn btn-homework" onclick="goToPage('${subjectName.replace(/'/g, "\\'")}', 'homework')">과제</button>
+          <button class="subject-btn btn-resource" onclick="goToPage('${subjectName.replace(/'/g, "\\'")}', 'info')">자료실</button>
+        </div>
+      `;
+      container.appendChild(rect);
+    }
+
+    function goToPage(subject, type) {
+      const url = `${type}.html?subject=${encodeURIComponent(subject)}`;
+      window.location.href = url;
+    }
+
+    // ✅ 서버에서 사용자별 신청 과목 가져와서 시간표 + 박스 생성
+    fetch('/api/registered-courses')
+    .then(res => res.json())
+    .then(data => {
+      // subject-box 내부 비우고 (기존 고정된 '과목명' 삭제)
+      document.querySelector('.subject-box').innerHTML = '';
+      data.forEach(course => {
+        createSubjectBox(course.subject, course.professor);
+      });
+      fillTimetable(data); // 시간표도 동시에 채움
+    })
+    .catch(err => console.error('수강 과목 불러오기 오류:', err));
+    </script>
 </body>
 </html>
 

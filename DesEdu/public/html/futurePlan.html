@@ -96,14 +96,18 @@
   
     <div class="box left-box">
       <div class="box-title">추천 교과목</div>
+
+      <label for="careerSelect">진로 선택:</label>
+      <select id="careerSelect" style="margin-bottom: 15px; padding: 6px;">
+        <option value="">-- 진로를 선택하세요 --</option>
+      </select>
+
       <table>
         <thead>
           <tr><th>번호</th><th>교과명</th><th>이수현황</th></tr>
         </thead>
-        <tbody>
-          <tr><td>1</td><td>자료구조</td><td>이수 완료</td></tr>
-          <tr><td>2</td><td>알고리즘</td><td>미이수</td></tr>
-          <tr><td>3</td><td>운영체제</td><td>이수 중</td></tr>
+        <tbody id="courseTableBody">
+          <tr><td colspan="3">진로를 선택해주세요.</td></tr>
         </tbody>
       </table>
     </div>
@@ -111,11 +115,57 @@
     <div class="box right-box">
       <div class="box-title">포트폴리오 작성하러가기</div>
       <div class="portfolio-buttons">
-        <a href="https://www.naver.com" target="_blank" class="portfolio-btn btn1">작성 사이트 1</a>
-        <a href="https://www.naver.com" target="_blank" class="portfolio-btn btn2">작성 사이트 2</a>
-        <a href="https://www.naver.com" target="_blank" class="portfolio-btn btn3">작성 사이트 3</a>
+        <a href="https://sprint.codeit.kr/track/product-design?utm_source=google_paid&utm_medium=sa&utm_campaign=sa_product_design&utm_term=%EB%94%94%EC%9E%90%EC%9D%B8%20%ED%8F%AC%ED%8A%B8%ED%8F%B4%EB%A6%AC%EC%98%A4&utm_content=product_design&gad_source=1&gad_campaignid=21932021164" target="_blank" class="portfolio-btn btn1">작성 사이트 1</a>
+        <a href="https://www.miricanvas.com/ko/template/presentation/%ED%8F%AC%ED%8A%B8%ED%8F%B4%EB%A6%AC%EC%98%A4?purpose=WEB" target="_blank" class="portfolio-btn btn2">작성 사이트 2</a>
+        <a href="https://kmong.com/category/601?airbridge_referrer=airbridge%3Dtrue%26campaign%3D881067838%26campaign_id%3D881067838%26ad_group%3D68875099658%26ad_group_id%3D68875099658%26ad_creative%3D743779912505%26ad_creative_id%3D743779912505%26term%3D%ED%8F%AC%ED%8A%B8%ED%8F%B4%EB%A6%AC%EC%98%A4%EC%A0%9C%EC%9E%91%EC%82%AC%EC%9D%B4%ED%8A%B8%26sub_id%3Dg%26sub_id_1%3D%26sub_id_2%3D%26sub_id_3%3Db%26click_id%3DCjwKCAjwgb_CBhBMEiwA0p3oOBQ1lfs_wyDN623rCdyrQbwAolJe8hTt2hwjngpQTqs_wl2wfr8svRoC5G0QAvD_BwE%26gclid%3DCjwKCAjwgb_CBhBMEiwA0p3oOBQ1lfs_wyDN623rCdyrQbwAolJe8hTt2hwjngpQTqs_wl2wfr8svRoC5G0QAvD_BwE%26ad_type%3Dclick&utm_source=google.adwords&utm_campaign=06_IT%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D_pc&utm_medium=Search&utm_term=%ED%8F%AC%ED%8A%B8%ED%8F%B4%EB%A6%AC%EC%98%A4%EC%A0%9C%EC%9E%91%EC%82%AC%EC%9D%B4%ED%8A%B8&ad_creative_id=743779912505&ad_group=06_601_%ED%99%88%ED%8E%98%EC%9D%B4%EC%A7%80&campaign_id=881067838&sub_id=g&sub_id_1=&sub_id_2=&gad_source=1&gad_campaignid=881067838" target="_blank" class="portfolio-btn btn3">작성 사이트 3</a>
       </div>
     </div>
   </div>
+  <script>
+  // 진로 목록 불러오기
+  fetch('/api/careers')
+    .then(res => res.json())
+    .then(data => {
+      const select = document.getElementById('careerSelect');
+      data.forEach(career => {
+        const option = document.createElement('option');
+        option.value = career.id;
+        option.textContent = career.name;
+        select.appendChild(option);
+      });
+    });
+
+  // 진로 선택 시 추천 과목 불러오기
+  document.getElementById('careerSelect').addEventListener('change', function () {
+    const careerId = this.value;
+    const tbody = document.getElementById('courseTableBody');
+    tbody.innerHTML = '';
+
+    if (!careerId) {
+      tbody.innerHTML = '<tr><td colspan="3">진로를 선택해주세요.</td></tr>';
+      return;
+    }
+
+    fetch(`/api/recommendations/${careerId}`)
+      .then(res => res.json())
+      .then(courses => {
+        if (courses.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3">추천 교과목이 없습니다.</td></tr>';
+          return;
+        }
+
+        courses.forEach((course, index) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${course.course_name}</td>
+            <td>${course.status}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      });
+  });
+</script>
+
 </body>
 </html>

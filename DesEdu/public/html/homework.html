@@ -162,23 +162,33 @@
   </div>
 
   <script>
-    fetch('/api/homework')
-      .then(res => res.json())
-      .then(data => {
-        const tbody = document.getElementById('homeworkList');
-        tbody.innerHTML = data.map(hw => `
+  fetch('/api/homeworks')  // 또는 '/api/homeworks'로 일치시켜야 함 (백엔드와 동일하게)
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.getElementById('homeworkList');
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:gray;">과제가 없습니다.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map(hw => {
+        const due = hw.end_date ? new Date(hw.end_date) : null;
+        const created = hw.created_at ? new Date(hw.created_at) : null;
+        const now = new Date();
+        const status = due && now > due ? '마감' : '진행 중';
+
+        return `
           <tr>
-            <td><a class="title-link" href="homework_view.html?id=${hw.id}">${hw.title}</a></td>
-            <td>${hw.start_date} ~ ${hw.end_date}</td>
-            <td>${new Date(hw.created_at).toLocaleDateString()}</td>
-            <td>${hw.status || '미제출'}</td>
+            <td><a href="homework_view.html?id=${hw.id}" class="title-link">${hw.title}</a></td>
+            <td>${due ? due.toLocaleDateString() : '-'}</td>
+            <td>${created ? created.toLocaleDateString() : '-'}</td>
+            <td>${status}</td>
           </tr>
-        `).join('');
-      })
-      .catch(err => {
-        alert('과제 목록을 불러오지 못했습니다.');
-        console.error(err);
-      });
-  </script>
+        `;
+      }).join('');
+    })
+    .catch(err => {
+      console.error('과제 불러오기 오류: ', err);
+    });
+</script>
 </body>
 </html>

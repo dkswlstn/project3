@@ -141,7 +141,7 @@
   
   <div class="header">
     <div class="logo">
-      <a href="login.html"><img src="logo.jpg" alt="DesEDU 로고" /></a>
+      <a href="login.html"><img src="/images/logo.jpg" alt="DesEDU 로고" /></a>
     </div>
     <div class="dropdown">
       <button class="dropdown-btn">메뉴</button>
@@ -159,10 +159,10 @@
 
 
   <div class="container">
-    <div class="title">자유게시판</div>
+    <div id="title" class="title">자유게시판</div>
 
     <div class="meta">
-      <div><span>현종수 교수</span> | <span>2025-05-29</span></div>
+      <div><span id="author">작성자</span> | <span id="date">날짜</span></div>
       <div>
         <a href="board_edit.html" class="action-btn">수정</a>
         <a href="#" onclick="confirmDelete()" class="action-btn delete">삭제</a>
@@ -171,10 +171,8 @@
 
     <hr />
 
-    <div class="content">
-      내용
-    </div>
-
+    <div id="content" class="content">내용</div>
+    <div id="attachment"></div>
     <hr />
 
     <div class="btn-row">
@@ -183,12 +181,52 @@
   </div>
 
   <script>
-    function confirmDelete() {
-      if (confirm("정말 삭제하시겠습니까?")) {
-        alert("삭제되었습니다.");
-        window.location.href = "board.html";
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    fetch(`/api/board/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('author').textContent = data.author || '익명';
+        document.getElementById('date').textContent = data.date || '';
+        document.getElementById('title').textContent = data.title;
+        document.getElementById('content').textContent = data.content;
+
+        if (data.filename) {
+          const ext = data.filename.split('.').pop().toLowerCase();
+          const container = document.getElementById('attachment');
+          if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) {
+            container.innerHTML = `<img src="/uploads/${data.filename}" style="max-width:100%;">`;
+          } else {
+            container.innerHTML = `<a href="/uploads/${data.filename}" download="${data.originalname}">${data.originalname}</a>`;
+          }
+        }
+      })
+      .catch(err => {
+        alert("게시글을 불러오는 데 실패했습니다.");
+        console.error(err);
+      });
+
+      function confirmDelete(){
+        if(confirm("정말 삭제하실건가요?")){
+          fetch(`/api/board/${id}`, {
+            method: 'DELETE'
+          })
+          .then(res => {
+            if(res.ok){
+              alert('삭제 완료');
+              window.location.href='board.html'; //목록 페이지로 이동
+            }
+            else{
+              alert('삭제 실패');
+            }
+          })
+          .catch(err=>{
+            alert('삭제 중 오류 발생');
+            console.error(err);
+          });
+        }
       }
-    }
   </script>
 </body>
 </html>

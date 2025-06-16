@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>공지사항 작성</title>
   <style>
     body {
@@ -9,7 +9,6 @@
       margin: 0;
       background-color: #f4f4f4;
     }
-
     .header {
       display: flex;
       align-items: center;
@@ -17,20 +16,16 @@
       padding: 10px 20px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-
     .logo {
       margin-right: 20px;
     }
-
     .logo img {
       height: 50px;
       cursor: pointer;
     }
-
     .dropdown {
       position: relative;
     }
-
     .dropdown-btn {
       background-color: #333;
       color: #fff;
@@ -39,7 +34,6 @@
       cursor: pointer;
       border-radius: 5px;
     }
-
     .dropdown-content {
       display: none;
       position: absolute;
@@ -48,22 +42,18 @@
       z-index: 1;
       min-width: 180px;
     }
-
     .dropdown-content a {
       padding: 10px;
       display: block;
       text-decoration: none;
       color: #000;
     }
-
     .dropdown-content a:hover {
       background-color: #eee;
     }
-
     .dropdown:hover .dropdown-content {
       display: block;
     }
-
     .container {
       max-width: 800px;
       margin: 40px auto;
@@ -72,21 +62,19 @@
       border-radius: 12px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     }
-
     h2 {
       text-align: center;
       margin-bottom: 30px;
     }
-
     label {
       display: block;
       font-weight: bold;
       margin-top: 15px;
     }
-
     input[type="text"],
     textarea,
-    input[type="file"] {
+    input[type="file"],
+    select {
       width: 100%;
       padding: 10px;
       margin-top: 6px;
@@ -94,13 +82,11 @@
       border-radius: 6px;
       resize: vertical;
     }
-
     .btn-row {
       display: flex;
       justify-content: flex-end;
       margin-top: 30px;
     }
-
     .btn-row button {
       padding: 10px 20px;
       background-color: #4CAF50;
@@ -133,14 +119,19 @@
 
   <div class="container">
     <h2>공지사항 작성</h2>
-    <form id = "noticeForm" action="notice.html" method="POST" enctype="multipart/form-data">
+    <form id="noticeForm" method="POST" enctype="multipart/form-data">
+      <label for="course_id">과목 선택</label>
+      <select id="course_id" name="course_id" required>
+        <option value="">과목을 선택하세요</option>
+      </select>
+
       <label for="title">제목</label>
       <input type="text" id="title" name="title" required />
 
       <label for="content">내용</label>
       <textarea id="content" name="content" rows="10" required></textarea>
 
-      <label for="author">작성자</label> <!-- 👈 추가 -->
+      <label for="author">작성자</label>
       <input type="text" id="author" name="author" required />
 
       <label for="file">첨부파일</label>
@@ -151,23 +142,44 @@
       </div>
     </form>
   </div>
+
+  <script>
+    const userId = localStorage.getItem('user_id');
+    if (!userId) {
+      alert('로그인이 필요합니다.');
+      location.href = 'login.html';
+    }
+
+    // 과목 목록 불러오기 (수강 과목만)
+    fetch(`/api/my-courses?user_id=${userId}`)
+      .then(res => res.json())
+      .then(courses => {
+        const select = document.getElementById('course_id');
+        courses.forEach(course => {
+          const opt = document.createElement('option');
+          opt.value = course.id;
+          opt.textContent = course.name;
+          select.appendChild(opt);
+        });
+      });
+
+    // 작성 완료 제출 처리
+    document.getElementById('noticeForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+
+      const res = await fetch('/api/notices', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (res.ok) {
+        alert('공지사항이 작성되었습니다');
+        window.location.href = 'notice.html';
+      } else {
+        alert('작성 실패');
+      }
+    });
+  </script>
 </body>
-<script>
-document.getElementById('noticeForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-
-  const res = await fetch('/api/notices', {
-    method: 'POST',
-    body: formData
-  });
-
-  if (res.ok) {
-    alert('공지사항이 작성되었습니다');
-    window.location.href = 'notice.html';
-  } else {
-    alert('작성 실패');
-  }
-});
-</script>
 </html>
