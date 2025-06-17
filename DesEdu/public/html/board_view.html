@@ -163,10 +163,6 @@
 
     <div class="meta">
       <div><span id="author">작성자</span> | <span id="date">날짜</span></div>
-      <div>
-        <a href="board_edit.html" class="action-btn">수정</a>
-        <a href="#" onclick="confirmDelete()" class="action-btn delete">삭제</a>
-      </div>
     </div>
 
     <hr />
@@ -191,7 +187,10 @@
         document.getElementById('date').textContent = data.date || '';
         document.getElementById('title').textContent = data.title;
         document.getElementById('content').textContent = data.content;
-
+        document.querySelector('.btn-row').innerHTML = `
+          <a href="board_edit.html?id=${data.id}" class="action-btn">수정</a>
+          <a href="#" onclick="confirmDelete(${data.id})" class="action-btn delete">삭제</a>
+        `;
         if (data.filename) {
           const ext = data.filename.split('.').pop().toLowerCase();
           const container = document.getElementById('attachment');

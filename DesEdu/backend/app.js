@@ -40,7 +40,7 @@ app.use('/api',syllabusRouter);
 app.use('/api',coursesRouter);
 app.use('/api',registrationRouter);
 app.use('/api/grades',gradesRouter);
-app.use('/api',noticeRouter);
+app.use('/api/notices',noticeRouter);
 app.use('/api/homeworks',homeworkRouter);
 app.use('/api/myinfo', myInfoRouter);
 app.use('/api/board', boardRouter);

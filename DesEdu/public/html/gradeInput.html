@@ -340,14 +340,7 @@
     });
   });
 
-  // 교수만 접근 가능하도록 제한
-  const user = JSON.parse(localStorage.getItem('user'));
-  if (!user || user.role !== 'professor') {
-    alert('이 페이지는 교수만 접근할 수 있습니다.');
-    window.location.href = 'grade.html';
-  } else {
-    window.onload = inputGrades;
-  }
+  window.onload = inputGrades;
   </script>
 </body>
 </html>

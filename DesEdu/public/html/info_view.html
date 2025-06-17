@@ -199,7 +199,7 @@
 
       // 작성자, 과목, 날짜
       document.getElementById("info-meta").innerHTML =
-        `<span>${data.author} (${data.subject})</span> | <span>${new Date(data.created_at).toLocaleDateString()}</span>`;
+        `<span>${data.author}</span> | <span>${new Date(data.created_at).toLocaleDateString()}</span>`;
 
       // 내용
       document.getElementById("info-content").textContent = data.content;

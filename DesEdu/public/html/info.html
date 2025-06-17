@@ -151,7 +151,6 @@
         <tr>
           <th>제목</th>
           <th>작성자</th>
-          <th>과목명</th>
           <th>작성일</th>
           <th>첨부파일</th>
         </tr>
@@ -174,7 +173,6 @@
       <tr>
         <td><a href="info_view.html?id=${info.id}" class="title-link">${info.title}</a></td>
         <td>${info.author}</td>
-        <td>${info.subject}</td>
         <td>${new Date(info.created_at).toLocaleDateString()}</td>
         <td>
           ${

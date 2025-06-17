@@ -135,10 +135,10 @@
     <h2>자유 게시판 수정</h2>
     <form id = "editForm" action="board.html" method="POST" enctype="multipart/form-data">
       <label for="title">제목</label>
-      <input type="text" id="title" name="title" value="기존 제목" required />
+      <input type="text" id="title" name="title" required />
 
       <label for="content">내용</label>
-      <textarea id="content" name="content" rows="10" required>기존 공지 내용</textarea>
+      <textarea id="content" name="content" rows="10" required></textarea>
 
       <label for="file">첨부파일</label>
       <input type="file" id="file" name="file" />
@@ -148,29 +148,43 @@
       </div>
     </form>
     <script>
-      const id = new URLSearchParams(location.search).get('id');
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if (!id) {
+    alert('ID 없음');
+    location.href = 'board.html';
+  }
 
-      // 수정 전 기존 내용 채우기
-      fetch(`/board/${id}`)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('title').value = data.title;
-        document.getElementById('content').value = data.content;
-      });
-
-      document.getElementById('editForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        fetch(`/api/board/edit/${id}`, {
-          method: 'POST',
-          body: formData
-        }).then(res => {
-          if (res.redirected) {
-          window.location.href = res.url;
-        }
-      });
+  // 서버에서 게시글 데이터 가져와서 입력폼 채우기
+  fetch(`/api/board/${id}`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('title').value = data.title || '';
+      document.getElementById('content').value = data.content || '';
+    })
+    .catch(err => {
+      console.error(err);
+      alert('게시글 데이터를 불러오는 데 실패했습니다.');
     });
-    </script>
+
+  // 수정 완료
+  document.getElementById('editForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch(`/api/board/edit/${id}`, {
+      method: 'POST',
+      body: formData
+    }).then(res => {
+      if (res.ok) {
+        location.href = 'board.html';
+      } else {
+        alert('수정 실패');
+      }
+    });
+  });
+</script>
+
+
   </div>
 </body>
 </html>
