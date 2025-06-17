@@ -133,12 +133,7 @@
 
   <div class="container">
   <h2>자료 작성</h2>
-  <form id="writeForm" enctype="multipart/form-data">
-    <label for="subject">과목 선택</label>
-    <select id="subject" name="subject" required>
-      <option value="">과목을 선택하세요</option>
-    </select>
-
+  <form id="writeForm" method = "POST" enctype="multipart/form-data">
     <label for="author">교수명</label>
     <input type="text" id="author" name="author" required />
 
@@ -158,50 +153,25 @@
 </div>
 
 <script>
-  const userId = localStorage.getItem('user_id');
-  if (!userId) {
-    alert('로그인이 필요합니다.');
-    location.href = 'login.html';
-  }
-
-  // 과목 목록 불러오기
-  fetch(`/api/my-courses?user_id=${userId}`)
-    .then(res => res.json())
-    .then(courses => {
-      const select = document.getElementById('subject');
-      courses.forEach(course => {
-        const opt = document.createElement('option');
-        opt.value = course.name;
-        opt.textContent = course.name;
-        select.appendChild(opt);
-      });
-    });
-
-  // 작성 요청
-  document.getElementById('writeForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const form = e.target;
-    const formData = new FormData(form);
-
-    fetch('/api/infos', {
-      method: 'POST',
-      body: formData
-    })
+    const userId = localStorage.getItem('user_id');
+    if (!userId) { alert('로그인 필요'); location.href = 'login.html'; }
+    
+    document.getElementById('writeForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      fetch('/api/infos', {
+        method: 'POST', body: formData
+      })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          alert('자료가 작성되었습니다.');
-          window.location.href = 'info.html';
+          alert('작성 완료');
+          location.href = 'info.html';
         } else {
           alert('작성 실패');
         }
-      })
-      .catch(err => {
-        console.error('❌ 작성 오류:', err);
-        alert('오류 발생');
       });
-  });
-</script>
-
+    });
+  </script>
 </body>
 </html>

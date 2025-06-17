@@ -1,90 +1,75 @@
+//notice.js
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const db = require('../db'); // MySQL 연결 파일
+const db = require('../db');
 
-//파일 업로드 설정
 const storage = multer.diskStorage({
-    destination: (req,file,cb)=>cb(null,'uploads/'),
-    filename: (req,file,cb)=>cb(null,Date.now() + path.extname(file.originalname))
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
-const upload = multer({storage});
+const upload = multer({ storage });
 
-// 과목 목록 조회 (중복 제거 + null 제외)
-router.get('/subjects', (req, res) => {
-  db.query('SELECT DISTINCT name FROM course', (err, results) => {
-    if (err) {
-      console.error('과목 목록 조회 오류:', err);
-      return res.status(500).send('서버 오류');
-    }
-    const subjects = results.map(r => r.name);
-    res.json(subjects);
-  });
-});
-
-//공지사항 전체 조회
-router.get('/notices', (req, res) => {
+// GET /api/notices
+router.get('/', (req, res) => {
   db.query('SELECT * FROM notice ORDER BY created_at DESC', (err, results) => {
-    if (err) {
-      console.error('공지사항 조회 오류:', err);
-      return res.status(500).send(err);
-    }
+    if (err) return res.status(500).send(err);
     res.json(results);
   });
 });
 
-//공지사항 등록
-router.post('/notices', upload.single('file'), (req, res) => {
-  const { title, content, author, subject } = req.body;
-  const course_id = req.body.course_id; // ✅ 명확히 꺼내기
-  const file_path = req.file ? req.file.filename : null;
-
-  const sql = `
-    INSERT INTO notice (title, content, author, course_id, file_path, created_at)
-    VALUES (?, ?, ?, ?, ?, NOW())
-  `;
-
-  db.query(sql, [title, content, author, course_id, file_path], (err) => {
-    if (err) {
-      console.error('❌ 공지사항 등록 실패:', err);
-      return res.status(500).send('등록 실패');
-    }
-    res.status(201).send('공지사항 등록 완료');
+// GET /api/notices/:id
+router.get('/:id', (req, res) => {
+  db.query('SELECT * FROM notice WHERE id = ?', [req.params.id], (err, result) => {
+    if (err || result.length === 0) return res.status(404).send('Not found');
+    res.json(result[0]);
   });
 });
 
-//공지사항 단일 조회
-router.get('/notices/:id',(req,res)=>{
-    db.query(`SELECT * FROM notice WHERE id = ?`
-        ,[req.params.id],(err,result)=>{
-            if(err) return res.status(500).send(err);
-            res.json(result[0]);
-        });
+// POST /api/notices
+router.post('/', upload.single('file'), (req, res) => {
+  const { title, content, author } = req.body;  // ✅ subject 제거
+  const file_path = req.file?.filename || null;
+
+  const sql = `
+    INSERT INTO notice (title, content, author, file_path, created_at)
+    VALUES (?, ?, ?, ?, NOW())
+  `;
+
+  db.query(sql, [title, content, author, file_path], (err) => {
+    if (err) {
+      console.error('Insert failed:', err);  // 디버깅 로그
+      return res.status(500).send('Insert failed');
+    }
+    res.status(201).send('Created');
+  });
 });
 
-//공지사항 수정
-router.put('/notices/:id',upload.single('file'),(req,res)=>{
-    const {title, content}=req.body;
-    const file_path = req.file ? req.file.filename : null;
+// POST /api/notices/edit/:id
+router.post('/edit/:id', upload.single('file'), (req, res) => {
+  const { title, content } = req.body;
+  const file_path = req.file?.filename || null;
 
-    const query = file_path 
-        ? `UPDATE notice SET title = ?, content = ?, file_path = ? WHERE id = ?`
-        : `UPDATE notice SET title = ?, content = ? WHERE id = ?`;
-    const params = file_path ? [title,content,file_path,req.params.id] : [title, content, req.params.id];
+  const sql = file_path
+    ? 'UPDATE notice SET title = ?, content = ?, file_path = ? WHERE id = ?'
+    : 'UPDATE notice SET title = ?, content = ? WHERE id = ?';
+  const params = file_path
+    ? [title, content, file_path, req.params.id]
+    : [title, content, req.params.id];
 
-    db.query(query, params, (err)=>{
-        if(err) return res.status(500).send(err);
-        res.json({success:true});
-    });
+  db.query(sql, params, err => {
+    if (err) return res.status(500).send('Update failed');
+    res.send('Updated');
+  });
 });
 
-//공지사항 삭제
-router.delete('/notices/:id',(req,res)=>{
-    db.query(`DELETE FROM notice WHERE id = ?`, [req.params.id],(err)=>{
-        if(err) return res.status(500).send(err);
-        res.json({success:true});
-    });
+// DELETE /api/notices/:id
+router.delete('/:id', (req, res) => {
+  db.query('DELETE FROM notice WHERE id = ?', [req.params.id], err => {
+    if (err) return res.status(500).send('Delete failed');
+    res.send('Deleted');
+  });
 });
 
 module.exports = router;

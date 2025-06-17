@@ -161,18 +161,16 @@
   </div>
 
   <script>
-    const userId = localStorage.getItem('user_id');
+    const userId = localStorage.getItem('username');
     if (!userId) {
       alert('로그인이 필요합니다.');
       location.href = 'login.html';
     }
-
-    // 공지사항 전체 가져오기
     fetch('/api/notices')
       .then(res => res.json())
       .then(data => {
         const tbody = document.getElementById('noticeList');
-        if (data.length === 0) {
+        if (!data.length) {
           tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:gray;">공지사항이 없습니다.</td></tr>';
           return;
         }

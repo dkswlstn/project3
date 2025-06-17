@@ -2,43 +2,40 @@ const express = require('express');
 const router = express.Router();
 const conn = require('../db');
 const multer = require('multer');
-const path = require('path');
 
-// 파일 저장 설정
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, Date.now() + '_' + file.originalname)
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, 'uploads/'),
+    filename: (req, file, cb) => cb(null, Date.now() + '_' + file.originalname)
+  })
 });
-const upload = multer({ storage });
-
-// 자료 목록 조회
-router.get('/', (req, res) => {
-  const sql = `
-    SELECT id, title, author, subject, created_at, filename, filepath
-    FROM resource
-    ORDER BY created_at DESC
-  `;
-  conn.query(sql, (err, results) => {
-    if (err) {
-      console.error('❌ 자료 목록 조회 오류:', err);
-      return res.status(500).json({ success: false });
-    }
+//과목 목록 반환
+router.get('/api/my-courses', (req, res) => {
+  const user_id = req.query.user_id;
+  db.query('SELECT subject_name as name FROM subject_table WHERE user_id = ?', [user_id], (err, results) => {
+    if (err) return res.status(500).json({ success: false });
     res.json(results);
   });
 });
 
+// GET /api/infos
+router.get('/', (req, res) => {
+  const sql = `SELECT id, title, author, subject, created_at, filename, filepath FROM resource ORDER BY created_at DESC`;
+  conn.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ success: false });
+    res.json(results);
+  });
+});
 
-// 자료 상세 조회
+// GET /api/infos/:id
 router.get('/:id', (req, res) => {
-  const { id } = req.params;
-  const sql = `SELECT * FROM resource WHERE id = ?`;
-  conn.query(sql, [id], (err, result) => {
+  conn.query('SELECT * FROM resource WHERE id = ?', [req.params.id], (err, result) => {
     if (err || result.length === 0) return res.status(404).json({ success: false });
     res.json(result[0]);
   });
 });
 
-// 자료 등록
+// POST /api/infos
 router.post('/', upload.single('file'), (req, res) => {
   const { title, content, author, subject } = req.body;
   const file = req.file;
@@ -55,53 +52,46 @@ router.post('/', upload.single('file'), (req, res) => {
   ];
 
   conn.query(sql, values, (err, result) => {
-    if (err) {
-      console.error('❌ 자료 작성 오류:', err);
-      return res.status(500).json({ success: false });
-    }
+    if (err) return res.status(500).json({ success: false });
     res.json({ success: true, id: result.insertId });
   });
 });
 
-// 자료 수정
+// PUT /api/infos/:id
 router.put('/:id', upload.single('file'), (req, res) => {
-  const { id } = req.params;
-  const { title, content } = req.body;
+  const { title, content, author } = req.body;
   const file = req.file;
 
   const sql = `
     UPDATE resource
-    SET title = ?, content = ?, 
+    SET title = ?, content = ?, author = ?, 
         filename = ?, filepath = ?, filesize = ?
     WHERE id = ?
   `;
+
   const values = [
     title,
     content,
+    author,
     file?.originalname || null,
     file?.path || null,
     file?.size || null,
-    id
+    req.params.id
   ];
 
-  conn.query(sql, values, (err) => {
+  conn.query(sql, values, (err, result) => {
     if (err) {
-      console.error('❌ 자료 수정 오류:', err);
+      console.error('자료 수정 오류:', err);
       return res.status(500).json({ success: false });
     }
     res.json({ success: true });
   });
 });
 
-// 자료 삭제
+// DELETE /api/infos/:id
 router.delete('/:id', (req, res) => {
-  const { id } = req.params;
-  const sql = `DELETE FROM resource WHERE id = ?`;
-  conn.query(sql, [id], (err, result) => {
-    if (err) {
-      console.error('❌ 자료 삭제 오류:', err);
-      return res.status(500).json({ success: false });
-    }
+  conn.query('DELETE FROM resource WHERE id = ?', [req.params.id], (err) => {
+    if (err) return res.status(500).json({ success: false });
     res.json({ success: true });
   });
 });

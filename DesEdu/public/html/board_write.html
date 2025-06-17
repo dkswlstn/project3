@@ -152,11 +152,14 @@
         e.preventDefault();
         const formData = new FormData(this);
         fetch('/api/board/write', {
-          method: 'POST',
-          body: formData
-        }).then(res => {
-          if (res.redirected) {
-          window.location.href = res.url;
+        method: 'POST',
+        body: formData
+      }).then(res => {
+        if (res.ok) {
+          alert('작성 성공');
+          location.href = 'board.html';
+        } else {
+          alert('작성 실패');
         }
       });
     });
