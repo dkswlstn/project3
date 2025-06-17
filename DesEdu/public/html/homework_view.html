@@ -92,16 +92,15 @@
       margin-right: 10px;
     }
 
-    hr {
-      border: none;
-      border-top: 1px solid #ccc;
-      margin: 20px 0;
-    }
-
     .content {
       white-space: pre-line;
       line-height: 1.6;
       margin-bottom: 30px;
+    }
+
+    .attachment {
+      margin: 10px 0 30px 0;
+      font-size: 14px;
     }
 
     .btn-row {
@@ -126,6 +125,8 @@
       border-radius: 4px;
       text-decoration: none;
       font-size: 0.85em;
+      border: none;
+      cursor: pointer;
     }
 
     .action-btn.delete {
@@ -135,14 +136,10 @@
     .action-btn:hover {
       opacity: 0.8;
     }
-
-    form button:hover {
-      opacity: 0.9;
-    }
   </style>
 </head>
 <body>
-  
+
   <div class="header">
     <div class="logo">
       <a href="login.html"><img src="/images/logo.jpg" alt="DesEDU 로고" /></a>
@@ -161,54 +158,71 @@
     </div>
   </div>
 
- 
   <div class="container">
     <div class="title" id="title">제목</div>
+
     <div class="meta">
       <div><span id="professor_name"></span> | <span id="created_at"></span></div>
       <div>
         <button id="editBtn" class="action-btn">수정</button>
-<button onclick="confirmDelete()" class="action-btn delete">삭제</button>
+        <button onclick="confirmDelete()" class="action-btn delete">삭제</button>
       </div>
     </div>
+
     <hr />
     <div class="content" id="content">내용</div>
+    <div class="attachment" id="attachment"></div>
+    <hr />
+
     <div class="btn-row">
       <a href="homework.html">목록</a>
     </div>
   </div>
 
   <script>
-const id = new URLSearchParams(location.search).get('id');
-if (!id) {
-  alert("잘못된 접근입니다.");
-  location.href = "homework.html";
-}
+    const id = new URLSearchParams(location.search).get('id');
+    if (!id) {
+      alert("잘못된 접근입니다.");
+      location.href = "homework.html";
+    }
 
-fetch(`/api/homework/${id}`)
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById('title').innerText = data.title;
-    document.getElementById('content').innerText = data.content;
-    document.getElementById('professor_name').innerText = data.professor_name;
-    document.getElementById('created_at').innerText = new Date(data.created_at).toLocaleDateString();
-    document.getElementById('editBtn').href = `homework_edit.html?id=${id}`;
-  })
-  .catch(() => {
-    alert("과제 정보를 불러오지 못했습니다.");
-    location.href = 'homework.html';
-  });
+    fetch(`/api/homeworks/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('title').innerText = data.title;
+        document.getElementById('content').innerText = data.content;
+        document.getElementById('professor_name').innerText = data.professor_name;
+        document.getElementById('created_at').innerText = new Date(data.created_at).toLocaleDateString();
 
-function confirmDelete() {
-  if (confirm('정말 삭제하시겠습니까?')) {
-    fetch(`/api/homework/${id}`, { method: 'DELETE' })
-      .then(() => {
-        alert('삭제되었습니다');
-        location.href = 'homework.html';
+        document.getElementById('editBtn').addEventListener('click', () => {
+          window.location.href = `homework_edit.html?id=${id}`;
+        });
+
+        if (data.file_path) {
+          const container = document.getElementById('attachment');
+          const link = document.createElement('a');
+          link.href = `/uploads/${data.file_path}`;
+          link.textContent = `📎 첨부파일 다운로드 (${data.file_path})`;
+          link.download = '';
+          link.style.display = 'block';
+          container.appendChild(link);
+        }
       })
-      .catch(() => alert('삭제 실패'));
-  }
-}
-</script>
+      .catch(() => {
+        alert("과제 정보를 불러오지 못했습니다.");
+        location.href = 'homework.html';
+      });
+
+    function confirmDelete() {
+      if (confirm('정말 삭제하시겠습니까?')) {
+        fetch(`/api/homeworks/${id}`, { method: 'DELETE' })
+          .then(() => {
+            alert('삭제되었습니다');
+            location.href = 'homework.html';
+          })
+          .catch(() => alert('삭제 실패'));
+      }
+    }
+  </script>
 </body>
 </html>

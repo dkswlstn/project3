@@ -154,7 +154,7 @@
           <th>작성일</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="postList">
         <tr>
           <td><a href="board_view.html" class="title-link">공지</a></td>
           <td>작성자1</td>
@@ -164,5 +164,24 @@
       </tbody>
     </table>
   </div>
+  <script>
+  fetch('/api/board')
+    .then(res => res.json())
+    .then(posts => {
+      const tbody = document.getElementById('postList');
+      if (!tbody) return;
+      tbody.innerHTML = posts.map(post => `
+        <tr>
+          <td><a class="title-link" href="board_view.html?id=${post.id}">${post.title}</a></td>
+          <td>익명</td>
+          <td>${post.date}</td>
+        </tr>
+      `).join('');
+    })
+    .catch(err => {
+      console.error('목록 불러오기 실패:', err);
+    });
+  </script>
+
 </body>
 </html>

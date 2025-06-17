@@ -133,7 +133,7 @@
 
   <div class="container">
     <h2>과제 작성</h2>
-    <form action="/api/homework" method="POST" enctype="multipart/form-data">
+    <form action="/api/homeworks" method="POST" enctype="multipart/form-data">
       <label for="title">제목</label>
       <input type="text" name="title" required />
 
@@ -162,7 +162,7 @@
 document.querySelector('form').addEventListener('submit', async e => {
   e.preventDefault();
   const formData = new FormData(e.target);
-  const res = await fetch('/api/homework', {
+  const res = await fetch('/api/homeworks', {
     method: 'POST',
     body: formData
   });

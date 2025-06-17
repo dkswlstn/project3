@@ -151,8 +151,8 @@
         <img src="/images/logo.jpg" alt="DesEDU 로고" class="logo-image">
         <h2>로그인</h2>
         <form id="loginForm" action="/api/auth/login" method="post">
-          <input type="text" name="username" placeholder="아이디" required>
-          <input type="password" name="password" placeholder="비밀번호" required>
+          <input type="text" id="username" name="username" placeholder="아이디" required>
+          <input type="password" id="password" name="password" placeholder="비밀번호" required>
           <input type="submit" value="로그인">
         </form>
         <div class="login-links">
@@ -166,33 +166,29 @@
 </body>
 
 <script>
-  document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-    const username = this.username.value;
-    const password = this.password.value;
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
 
-    fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    })
-    .then(res => {
-      if (!res.ok) throw new Error('로그인 실패');
-      return res.json();
-    })
-    .then(user => {
-      // ✅ localStorage에 사용자 정보 저장
-      localStorage.setItem('userId', user.username); // 또는 user.userId
-      localStorage.setItem('user', JSON.stringify(user));
-      // ✅ 로그인 성공 후 페이지 이동
-      window.location.href = 'login.html'; // 또는 grade.html, home.html 등 원하는 경로
-      
-    })
-    .catch(err => {
-      alert('로그인 실패: ' + err.message);
-    });
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
   });
+
+  const result = await res.json();
+  //로그인 성공
+  if (result.success) {
+    // ✅ 여기가 중요
+    localStorage.setItem('user', JSON.stringify(result.user));
+    localStorage.setItem('username', result.user.username); // 반드시 필요!
+    location.href = 'login.html';
+  } else {
+    alert('로그인 실패: ' + result.message);
+  }
+});
 </script>
 
 </html>

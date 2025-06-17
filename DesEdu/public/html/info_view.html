@@ -159,23 +159,17 @@
 
   
   <div class="container">
-    <div class="title">자료1</div>
+    <div class="title" id="info-title">자료1</div>
 
     <div class="meta">
-      <div><span>홍길동 교수</span> | <span>2025-05-29</span></div>
+      <div id="info-meta"><span>작성자</span> | <span>날짜</span></div>
       <div>
-        <a href="info_edit.html" class="action-btn">수정</a>
+        <a href="#" id="edit-btn" class="action-btn">수정</a>
         <a href="#" onclick="confirmDelete()" class="action-btn delete">삭제</a>
       </div>
     </div>
 
-    <hr />
-
-    <div class="content">
-      자료1
-    </div>
-
-    <hr />
+    <div class="content" id="info-content">내용</div>
 
     <div class="btn-row">
       <a href="info.html">목록</a>
@@ -183,12 +177,75 @@
   </div>
 
   <script>
-    function confirmDelete() {
-      if (confirm("정말 삭제하시겠습니까?")) {
-        alert("삭제되었습니다.");
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get('id');
+
+  if (!id) {
+    alert("잘못된 접근입니다.");
+    window.location.href = "info.html";
+  }
+
+  fetch(`/api/infos/${id}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.success === false) {
+        alert("자료를 불러올 수 없습니다.");
         window.location.href = "info.html";
+        return;
       }
-    }
-  </script>
+
+      // 제목
+      document.getElementById("info-title").textContent = data.title;
+
+      // 작성자, 과목, 날짜
+      document.getElementById("info-meta").innerHTML =
+        `<span>${data.author} (${data.subject})</span> | <span>${new Date(data.created_at).toLocaleDateString()}</span>`;
+
+      // 내용
+      document.getElementById("info-content").textContent = data.content;
+
+      // 첨부파일
+      if (data.filename) {
+        const downloadSection = document.createElement('div');
+        downloadSection.innerHTML = `
+          <hr />
+          <p><strong>첨부파일:</strong>
+          <a href="${data.filepath}" download>${data.filename}</a>
+          (${(data.filesize / 1024).toFixed(1)} KB)</p>
+        `;
+        document.querySelector(".container").appendChild(downloadSection);
+      }
+
+      // 수정 버튼 링크 설정
+      document.getElementById("edit-btn").href = `info_edit.html?id=${id}`;
+    })
+    .catch(err => {
+      console.error("❌ 자료 조회 오류:", err);
+      alert("에러가 발생했습니다.");
+      window.location.href = "info.html";
+    });
+
+  function confirmDelete() {
+    if (!confirm("정말 삭제하시겠습니까?")) return;
+
+    fetch(`/api/infos/${id}`, {
+      method: 'DELETE'
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert('삭제되었습니다.');
+          window.location.href = 'info.html';
+        } else {
+          alert('삭제 실패');
+        }
+      })
+      .catch(err => {
+        console.error('❌ 삭제 오류:', err);
+        alert('오류 발생');
+      });
+  }
+</script>
+</script>
 </body>
 </html>

@@ -151,18 +151,44 @@
         <tr>
           <th>제목</th>
           <th>작성자</th>
+          <th>과목명</th>
           <th>작성일</th>
+          <th>첨부파일</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td><a href="info_view.html" class="title-link">자료1</a></td>
-          <td>현도현 교수</td>
-          <td>2025-05-29</td>
-        </tr>
+      <tbody id="infoList">
         <!-- 추가 게시글 행들 -->
       </tbody>
     </table>
   </div>
+  <script>
+    fetch('/api/infos')
+  .then(res => res.json())
+  .then(data => {
+    const tbody = document.getElementById('infoList');
+    if (data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:gray;">자료가 없습니다.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(info => `
+      <tr>
+        <td><a href="info_view.html?id=${info.id}" class="title-link">${info.title}</a></td>
+        <td>${info.author}</td>
+        <td>${info.subject}</td>
+        <td>${new Date(info.created_at).toLocaleDateString()}</td>
+        <td>
+          ${
+            info.filename
+              ? `<a href="${info.filepath}" download>${info.filename}</a>`
+              : '-'
+          }
+        </td>
+      </tr>
+    `).join('');
+  })
+  .catch(err => {
+    console.error('자료 불러오기 오류: ', err);
+  });
+  </script>
 </body>
 </html>

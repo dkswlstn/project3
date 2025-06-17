@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const conn = require('../db');
-
+/* 강의 계획서 조회 */
 router.get('/syllabus',(req,res)=>{
     conn.query('SELECT * FROM syllabus',(err,rows)=>{
         if(err){

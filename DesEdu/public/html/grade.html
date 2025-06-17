@@ -123,57 +123,51 @@
           <th>학기</th>
           <th>과목명</th>
           <th>교수명</th>
-          <th>학점</th>
           <th>성적</th>
         </tr>
       </thead>
-      <tbody id = "gradeBox">
-        <tr>
-          <td>2024</td>
-          <td>1학기</td>
-          <td>프로그래밍 기초</td>
-          <td>김희태</td>
-          <td>3</td>
-          <td>A+</td>
-        </tr>
-        <tr>
-          <td>2024</td>
-          <td>1학기</td>
-          <td>자료구조</td>
-          <td>여영여</td>
-          <td>3</td>
-          <td>B</td>
-        </tr>
+      <tbody id="gradeBox">
+        <!-- 성적 데이터 삽입 -->
       </tbody>
     </table>
   </div>
-</body>
-<script>
-  //성적 목록 호출
-  function loadGrades(){
-    fetch('/api/grades') //API는 /routes/grade.js에서
-      .then(res => res.json())
-      .then(data=>{
-        const tbody = document.getElementById('gradeBox');
-        tbody.innerHTML=''; //기존 내역 제거
+  <script>
+    function loadGrades() {
+      fetch('/api/grades')
+        .then(res => {
+          if (!res.ok) throw new Error('서버 응답 오류');
+          return res.json();
+        })
+        .then(data => {
+          const tbody = document.getElementById('gradeBox');
+          tbody.innerHTML = '';
 
-        data.forEach(grade=> {
-          tbody.innerHTML += `
-            <tr>
-              <td>${grade.year}</td>
-              <td>${grade.semester}</td>
-              <td>${grade.subject_name}</td>
-              <td>${grade.professor_name || '-'}</td>
-              <td>3</td>
-              <td>${grade.grade}</td>
-            </tr>
-          `
+          if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5">등록된 성적이 없습니다.</td></tr>';
+            return;
+          }
+
+          data.forEach(row => {
+            const tr = `
+              <tr>
+                <td>${row.year}</td>
+                <td>${row.semester}</td>
+                <td>${row.subject_name}</td>
+                <td>${row.professor_name}</td>
+                <td>${row.grade}</td>
+              </tr>
+            `;
+            tbody.innerHTML += tr;
+          });
+        })
+        .catch(err => {
+          console.error('성적 로딩 오류:', err);
+          alert('성적을 불러오는 데 실패했습니다.');
         });
-      })
-      .catch(err => console.error('성적 조회 실패: ',err));
-  }
-  //페이지 로드 시 자동 실행
-  window.onload = loadGrades;
-</script>
+    }
+
+    window.onload = loadGrades;
+  </script>
+</body>
 </html>
 
