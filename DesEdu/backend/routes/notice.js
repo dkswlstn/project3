@@ -54,6 +54,7 @@ router.post('/edit/:id', upload.single('file'), (req, res) => {
   const sql = file_path
     ? 'UPDATE notice SET title = ?, content = ?, file_path = ? WHERE id = ?'
     : 'UPDATE notice SET title = ?, content = ? WHERE id = ?';
+
   const params = file_path
     ? [title, content, file_path, req.params.id]
     : [title, content, req.params.id];
@@ -63,6 +64,7 @@ router.post('/edit/:id', upload.single('file'), (req, res) => {
     res.send('Updated');
   });
 });
+
 
 // DELETE /api/notices/:id
 router.delete('/:id', (req, res) => {
